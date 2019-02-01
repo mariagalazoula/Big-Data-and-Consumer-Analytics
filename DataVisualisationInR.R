@@ -17,6 +17,9 @@ View(mpg) #234 rows and 11 columns
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy))
 
+ggplot(data = mpg) + 
+  geom_jitter(mapping = aes(x = displ, y = hwy))
+
 ggplot(data = mpg) #we don't see anything
 
 ?mpg #view info about the dataset
@@ -166,6 +169,110 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
   geom_point(mapping = aes(colour = class)) + 
   geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+
+##Statistical transformations
+
+View(diamonds)
+#bar plot for diamonds dataset for count of diamonds by cut
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+
+#create the same plot using different command
+ggplot(data = diamonds) + 
+    stat_count(mapping = aes(x = cut))
+
+demo <- tribble(
+  ~cut,         ~freq,
+  "Fair",       1610,
+  "Good",       4906,
+  "Very Good",  12082,
+  "Premium",    13791,
+  "Ideal",      21551
+)
+ggplot(data = demo) +
+  geom_bar(mapping = aes(x = cut, y = freq), stat = "identity")
+
+#change the default mapping from transformed to aesthetics
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, y = ..prop.., group = 1))
+
+#draw attention to the stat transformation
+#summarise the y value for each unique x value
+ggplot(data = diamonds) + 
+  stat_summary(
+    mapping = aes(x = cut, y = depth),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+#not very useful, the colour is behind the bars
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, colour = cut))
+
+#use fill instead
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = cut))
+
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity))
+
+#
+ggplot(data = diamonds, mapping = aes(x = cut, fill = clarity)) + 
+  geom_bar( position = "identity")
+
+?geom_bar
+#position = "fill"
+# works like stacking, but makes each set of stacked bars the same height.
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "fill")
+
+#position = "dogde"
+#places overlapping objects right next to each other
+ggplot(data = diamonds) + 
+  geom_bar(mapping = aes(x = cut, fill = clarity), position = "dodge")
+
+
+#SOLVING THE OVERPLOTTING ISSUE
+#sometimes points overlap each other because the values on the axes are rounded
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy), position = "jitter")
+
+#adding randomness seems strange, but it reveals more at large scales
+
+
+#switch the x and y axis
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()
+#this is not very useful, that is why we will flip the axes
+
+#this plot is more useful
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) + 
+  geom_boxplot()+
+  coord_flip()
+
+#set the aspect ratio correctly for maps
+nz <- map_data("nz")
+#not proper ratio
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black")
+
+ggplot(nz, aes(long, lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  coord_quickmap()
+
+#polar coordinates
+bar <- ggplot(data = diamonds) + 
+  geom_bar(
+    mapping = aes(x = cut, fill = cut), 
+    show.legend = FALSE,
+    width = 1
+  ) + 
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+bar + coord_polar()
+
 
 
 
