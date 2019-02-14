@@ -68,4 +68,14 @@ View(pl)
 #find the precentage of households
 percentage<-100*(n.product/n.households)
 
+#filter for private label thin spaghetti
+plts <- pl %>%
+  filter(pl$product_description == "PRIVATE LABEL THIN SPAGHETTI" )
+#View to make sure everything went okay
+View(plts)
 
+#create new column in new_tr
+new_tr <- tr
+new_tr %>%
+  mutate(new_tr, 
+         gain = if())
