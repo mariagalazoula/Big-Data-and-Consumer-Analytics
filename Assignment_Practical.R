@@ -6,19 +6,20 @@ if (!is.element("nycflights13", installed.packages()))
 # load into the R session
 library(tidyverse)
 library(nycflights13)
+install.packages("OpenStreetMap", dep = T)
 
 #load the data as tibble
 library(tidyverse)
-cl <- as_tibble(read.csv("dh_causal_lookup.csv"))
-pl <- as_tibble(read.csv("dh_product_lookup.csv"))
-sl <- as_tibble(read.csv("dh_store_lookup.csv"))
-tr <- as_tibble(read.csv("dh_transactions.csv"))
+cl <- as_tibble(read.csv("dunnhumby/dh_causal_lookup.csv"))
+pl <- as_tibble(read.csv("dunnhumby/dh_product_lookup.csv"))
+sl <- as_tibble(read.csv("dunnhumby/dh_store_lookup.csv"))
+tr <- as_tibble(read.csv("dunnhumby/dh_transactions.csv"))
 
 #inspect the data to find the common field
-cl
-pl
-sl
-tr
+head(cl)
+head(pl)
+head(sl)
+head(tr)
 
 #common fields
 #cl, pl, tr <- upc
@@ -31,51 +32,92 @@ vignette("two-table", package = "dplyr")
 # Q1: What is the household penetration of `PRIVATE LABEL THIN SPAGHETTI`?
 # That is, out of all customers purchasing Pasta, what percent purchase this brand?
 
-pl %>%
-  count(pl$product_description == "PRIVATE LABEL THIN SPAGHETTI")
+#1. create a table for the upcs that correspond to the desired product
+#and for the specific commodity, in this case pasta
 
-table<- count(pl, product_description)
-unique(pl$commodity)
-
-
-# There are a number of stages to this
-# 1. Identify the upc codes for product and commodity
-index1 <- which(pl$product_description == "PRIVATE LABEL THIN SPAGHETTI")
-index2 <- which(pl$commodity == "pasta")
-# product
-upc.1 <- unlist(pl[index1,"upc"])
-# commodity
-upc.2 <- unlist(pl[index2,"upc"])
-# 2. then match these to the transactions upc
-# filter and get rid of the NAs
-tmp1 <- filter(tr, !is.na(match(tr$upc, upc.1)))
-tmp2 <- filter(tr, !is.na(match(tr$upc, upc.2)))
-# 3. then subset the transactions data
-# and determine the how many hosueholds buy product / commodity
-n.product <- length(unique(tmp1$household))
-n.commod <- length(unique(tmp2$household))
-
-n.households2 <- length(unique(tr$household))
-
-#omit the households with NAs
-n.households <- length(unique(na.omit(tr$household)))
-(View(n.households))
-
-View(tmp1)
-
-View(pl)
-
-#find the precentage of households
-percentage<-100*(n.product/n.households)
-
-#filter for private label thin spaghetti
+#filter for private label thin spaghetti (plts)
 plts <- pl %>%
   filter(pl$product_description == "PRIVATE LABEL THIN SPAGHETTI" )
-#View to make sure everything went okay
-View(plts)
+#this object now has three observations
 
-#create new column in new_tr
-new_tr <- tr
-new_tr %>%
-  mutate(new_tr, 
-         gain = if())
+#filter for pasta (pasta)
+pasta <- pl %>%
+  filter(pl$commodity == "pasta" )
+#this object now has three observations
+
+#2.left_join of the data new_tr with the plts
+#we do this as we want to keep only the data for the specific label 
+#that we created the subset for
+pen_house<- left_join(plts,new_tr)
+pasta_house<- left_join(pasta, new_tr)
+
+#3.drop the rows with NA values 
+pen_house<-na.omit(pen_house)  
+pasta_house<-na.omit(pasta_house)
+
+#4.find unique number of households in both datasets
+n.housebought<- length(unique(pen_house$household))
+n.housegen <- length(unique(pasta_house$household))        
+
+#5. find the percentage
+percentage <- n.housebought*100/n.housegen
+#the percentage is approximately 22.07% (22.065%) 
+
+
+
+#create a boxplot for private label thin spaghetti
+pl%>%
+  left_join(tr)%>%
+  filter(commodity == "pasta")
+ # mutate(brand_search = 
+          # ifelse(product_descripti on == "PRIVATE LABEL THIN SPAGHETTI",
+           #       "plts","not_plts"))
+
+#Q2: How does the household penetration of the product 
+#PRIVATE LABEL THIN SPAGHETTI vary within the two regions, 
+#relative to the sales of Pasta in each region? 
+
+head(pen_house)
+factor(pen_house$geography)
+#there is the variable for store in the dataset that we created before 
+
+#in order to see the variance between the two regions, we need
+#to join the dataset with the store dataset
+
+#there are two regions in the column geography
+
+#subset using filter in the two datasets we created before
+
+#subset for region 1 buying this pasta
+pen_house %>%
+  dplyr::filter(geography == 1) -> pen_house_1
+
+#subset for region 2 buying this pasta
+pen_house %>%
+  dplyr::filter(geography == 2) -> pen_house_2
+
+#subset for region 1 buying this pasta
+pasta_house %>%
+  dplyr::filter(geography == 1) -> pasta_house_1
+
+#subset for region 2 buying this pasta
+pasta_house %>%
+  dplyr::filter(geography == 2) -> pasta_house_2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
