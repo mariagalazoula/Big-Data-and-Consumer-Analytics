@@ -66,9 +66,13 @@ percentage <- n.housebought*100/n.housegen
 
 
 #create a boxplot for private label thin spaghetti
-pl%>%
-  left_join(tr)%>%
-  filter(commodity == "pasta")
+tr%>%
+  left_join(pl)%>%
+  filter(commodity == "pasta")%>%
+  count(household) -> n.households
+
+length(unique(pasta$household))
+
  # mutate(brand_search = 
           # ifelse(product_descripti on == "PRIVATE LABEL THIN SPAGHETTI",
            #       "plts","not_plts"))
