@@ -21,6 +21,8 @@ head(pl)
 head(sl)
 head(tr)
 
+?group_by
+?summarise
 #common fields
 #cl, pl, tr <- upc
 #tr, sl <- store
@@ -64,59 +66,104 @@ percentage <- n.housebought*100/n.housegen
 #the percentage is approximately 22.07% (22.065%) 
 
 
+#count(household) -> n.households %>%
 
-#create a boxplot for private label thin spaghetti
+#Join the dataset 
 tr%>%
   left_join(pl)%>%
   filter(commodity == "pasta")%>%
-  count(household) -> n.households
+  count(household) -> n.households# %>%
+#  filter(product_description == "PRIVATE LABEL THIN SPAGHETTI") %>%
+#  count(household) -> n.hhpen
 
-length(unique(pasta$household))
+length(unique(n.hhpen))
 
- # mutate(brand_search = 
-          # ifelse(product_descripti on == "PRIVATE LABEL THIN SPAGHETTI",
-           #       "plts","not_plts"))
+
+
+tr%>%
+  left_join(pl) %>%
+  select("upc", "household", "basket", "product_description") %>%
+  #filter(product_description == "PRIVATE LABEL THIN SPAGHETTI")%>%
+  filter(household == "8283")->meta
+
+View(meta)
+length(unique(meta$household))
+length(unique(meta$upc))
+length(unique(meta$basket))
+
+
+
+
+
+
+# Q1: What is the household penetration of `PRIVATE LABEL THIN SPAGHETTI`?
+# That is, out of all customers purchasing Pasta, what percent purchase this brand?
+
+#begin with the transaction file
+tr %>%
+  left_join(pl) %>% #keep 
+  select("upc", "geography", "household","basket", "product_description")%>%
+  filter(product_description == "PRIVATE LABEL THIN SPAGHETTI")%>%
+  count(household) -> n.hhpen 
+
+tr %>%
+  left_join(pl) %>%
+  select("upc", "geography", "household","basket", "product_description", "commodity")%>%
+  filter(commodity == "pasta")%>%
+  count(household) -> n.hhpen2
+
+length(unique(tr$household))
+
+n <- length(n.hhpen$household)*100/length(unique(tr$household))
+
+n2 <- length(n.hhpen$household)*100/length(unique(n.hhpen2$household))
+
+
 
 #Q2: How does the household penetration of the product 
 #PRIVATE LABEL THIN SPAGHETTI vary within the two regions, 
 #relative to the sales of Pasta in each region? 
 
-head(pen_house)
-factor(pen_house$geography)
-#there is the variable for store in the dataset that we created before 
-
-#in order to see the variance between the two regions, we need
-#to join the dataset with the store dataset
-
-#there are two regions in the column geography
-
-#subset using filter in the two datasets we created before
-
-#subset for region 1 buying this pasta
-pen_house %>%
-  dplyr::filter(geography == 1) -> pen_house_1
-
-#subset for region 2 buying this pasta
-pen_house %>%
-  dplyr::filter(geography == 2) -> pen_house_2
-
-#subset for region 1 buying this pasta
-pasta_house %>%
-  dplyr::filter(geography == 1) -> pasta_house_1
-
-#subset for region 2 buying this pasta
-pasta_house %>%
-  dplyr::filter(geography == 2) -> pasta_house_2
+tr %>%
+  left_join(pl) %>% #keep 
+  dplyr::select("upc", "geography", "household","basket", "product_description")%>%
+  filter(product_description == "PRIVATE LABEL THIN SPAGHETTI") -> pasta_label
 
 
 
 
+tr %>%
+  left_join(pl) %>%
+  dplyr::select("upc", "geography", "household","basket", "product_description", "commodity")%>%
+  filter(commodity == "pasta")%>%
+  count(geography)-> gen_pasta
 
+tr %>%
+  left_join(pl) %>% #keep 
+  dplyr::select("upc", "geography", "household","basket", "product_description")%>%
+  filter(product_description == "PRIVATE LABEL THIN SPAGHETTI")%>%
+  count(geography) ->geo3
 
+  
+geo <- count(pasta_label, geography)
 
+geo2<- count(gen_pasta, geography)
+  
+  
+remove(geo2) 
 
+geo3%>%
+  left_join(gen_pasta, "geography")%>%
+  mutate(percentage = n.x*100/n.y)->calc
+  
+  
 
+tr %>%
+  left_join(pl) %>%
+  dplyr::select("upc", "geography", "household","basket", "product_description", "commodity")%>%
+  filter(commodity == "pasta", geography == "1")-> just_pasta
 
+length(unique(just_pasta$household))
 
 
 
