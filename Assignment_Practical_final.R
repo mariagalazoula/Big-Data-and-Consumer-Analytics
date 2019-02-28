@@ -55,8 +55,16 @@ tr %>%
 
 #divide by length of each table, which will be the unique households in each case
 n2 <- length(n.hhpen$household)*100/length(unique(n.hhpen2$household))
+
 #Therefore, the answer to the first question is 22.065% or 22.07%
 
+label<- "Percentage"
+graph<- data.frame(Percentage= 22.07, Household_penetration = label)
+
+head(graph)
+
+ggplot(data=graph, aes(x=Household_penetration, y= Percentage))+
+  geom_bar(stat="identity", width = 0.5, fill= "steelblue")
 
 #Q2: How does the household penetration of the product 
 #PRIVATE LABEL THIN SPAGHETTI vary within the two regions, 
