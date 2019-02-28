@@ -22,8 +22,6 @@ head(pl)
 head(sl)
 head(tr)
 
-?group_by
-?summarise
 #common fields
 #cl, pl, tr <- upc
 #tr, sl <- store
@@ -31,71 +29,6 @@ head(tr)
 vignette("dplyr", package = "dplyr")
 
 vignette("two-table", package = "dplyr")
-
-# Q1: What is the household penetration of `PRIVATE LABEL THIN SPAGHETTI`?
-# That is, out of all customers purchasing Pasta, what percent purchase this brand?
-
-#1. create a table for the upcs that correspond to the desired product
-#and for the specific commodity, in this case pasta
-
-#filter for private label thin spaghetti (plts)
-plts <- pl %>%
-  filter(pl$product_description == "PRIVATE LABEL THIN SPAGHETTI" )
-#this object now has three observations
-
-#filter for pasta (pasta)
-pasta <- pl %>%
-  filter(pl$commodity == "pasta" )
-#this object now has three observations
-
-#2.left_join of the data new_tr with the plts
-#we do this as we want to keep only the data for the specific label 
-#that we created the subset for
-pen_house<- left_join(plts,new_tr)
-pasta_house<- left_join(pasta, new_tr)
-
-#3.drop the rows with NA values 
-pen_house<-na.omit(pen_house)  
-pasta_house<-na.omit(pasta_house)
-
-#4.find unique number of households in both datasets
-n.housebought<- length(unique(pen_house$household))
-n.housegen <- length(unique(pasta_house$household))        
-
-#5. find the percentage
-percentage <- n.housebought*100/n.housegen
-#the percentage is approximately 22.07% (22.065%) 
-
-
-#count(household) -> n.households %>%
-
-#Join the dataset 
-tr%>%
-  left_join(pl)%>%
-  filter(commodity == "pasta")%>%
-  count(household) -> n.households# %>%
-#  filter(product_description == "PRIVATE LABEL THIN SPAGHETTI") %>%
-#  count(household) -> n.hhpen
-
-length(unique(n.hhpen))
-
-
-
-tr%>%
-  left_join(pl) %>%
-  select("upc", "household", "basket", "product_description") %>%
-  #filter(product_description == "PRIVATE LABEL THIN SPAGHETTI")%>%
-  filter(household == "8283")->meta
-
-View(meta)
-length(unique(meta$household))
-length(unique(meta$upc))
-length(unique(meta$basket))
-
-
-
-
-
 
 # Q1: What is the household penetration of `PRIVATE LABEL THIN SPAGHETTI`?
 # That is, out of all customers purchasing Pasta, what percent purchase this brand?
@@ -172,6 +105,7 @@ n.hh1<- as.data.frame(n.hh[1:100, ])
 View(n.hh1)
 n.hh1$household<-n.hh1$`n.hh[1:100, ]`
 n.hh1$`n.hh[1:100, ]`<-NULL
+
 #examine each household particularly 
 tr%>%
   left_join(pl)%>% #join the data 
@@ -271,14 +205,20 @@ for (row in 1:nrow(n.hh1)){
 } 
 
 #this is the solution!!!!!!!
-for (row in 1:nrow(n.hh1)){
+for (row in 1:nrow(n.hh)){
   r2%>%
-    filter(household == n.hh1[row, 1])%>%
+    filter(household == n.hh[row, 1])%>%
     arrange(day,-coupon)%>%
     select(coupon)%>%
     unlist->tmp
   if (tmp[1]== 1 & length(tmp)>1)
-      pastpen$household<-append(n.hh1[row,1])
+      r <- append(r, n.hh[row,1])
 }
-View(tmp)
-n.hh1[300,1]
+
+View(r)
+
+length(r)
+
+length(unique(r1$household))
+
+n5<-length(r)*100/length(unique(r1$household))
