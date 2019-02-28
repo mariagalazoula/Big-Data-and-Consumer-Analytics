@@ -98,10 +98,10 @@ impact<-function(commod){
   
   #find number of households that bought a product with a coupon
   n.hh<- unique(r1$household)
-  View(n.hh)
+  # View(n.hh)
   
   n.hh<- as.data.frame(n.hh)
-  View(n.hh)
+  # View(n.hh)
 
   #examine each household particularly 
   tr%>%
@@ -110,7 +110,7 @@ impact<-function(commod){
     filter(commodity == commod)%>%
     arrange(day, -coupon)->r2 #filter for the commodity that we have and save
   
-  View(r2)
+  # View(r2)
   
   #create a function
   
@@ -126,11 +126,11 @@ impact<-function(commod){
       r<- append(r,n.hh[row,1])
   }
   
-  View(r)
+  # View(r)
   
-  length(unique(r))
+  # length(unique(r))
   
-  length(unique(r1$household))
+  # length(unique(r1$household))
   
   n5<-length(r)*100/length(unique(r1$household))
   print(n5)
