@@ -183,6 +183,50 @@ View(r2)
 
 #create a function
 
+r<-vector("numeric")
+#this is the solution!!!!!!!
+for (row in 1:nrow(n.hh)){
+  r2%>%
+    filter(household == n.hh[row, 1])%>%
+    arrange(day,-coupon)%>%
+    select(coupon)%>%
+    unlist->tmp
+  if (tmp[1]== 1 & length(tmp)>1)
+    r<- append(r,n.hh[row,1])
+}
+
+View(r)
+
+length(unique(r))
+
+length(unique(r1$household))
+
+n5<-length(r)*100/length(unique(r1$household))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #check_for_hh<- function(n.hh){
  # for (row in 1:nrow(n.hh)):
   #  r2%>%
