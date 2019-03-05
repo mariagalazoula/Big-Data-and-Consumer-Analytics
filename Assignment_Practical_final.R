@@ -192,7 +192,7 @@ ggplot(graph, mapping=aes(Commodity, Percentage, label=c("25.34%", "29.53%", "27
   geom_bar(stat="identity", width = 0.50, fill= c("cadetblue","cadetblue1", "cadetblue2", "cadetblue4"))+
   coord_cartesian(ylim = c(0, 30))+
   geom_text(size = 3, position = position_stack(vjust = 0.5))+
-  ggtitle("Impact of coupons on each commodity", position_dodge(middle)) 
+  ggtitle("Impact of coupons on each commodity") 
 
 ?ggtitle
 
